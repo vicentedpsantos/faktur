@@ -8,17 +8,17 @@ Gem::Specification.new do |spec|
   spec.authors = ["Vicente Santos"]
   spec.email = ["vicentedpsantos@gmail.com"]
 
-  spec.summary = "TODO: Write a short summary, because RubyGems requires one."
-  spec.description = "TODO: Write a longer description or delete this line."
-  spec.homepage = "TODO: Put your gem's website or public repo URL here."
+  spec.summary = "A CLI tool for generating and managing invoices."
+  spec.description = "Faktur simplifies invoice creation and management via the command line, supporting custom configuration storage"
+  spec.homepage = "https://github.com/vicentedpsantos/faktur"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.0.0"
 
-  spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
+  spec.metadata["allowed_push_host"] = ""
 
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "TODO: Put your gem's public repo URL here."
-  spec.metadata["changelog_uri"] = "TODO: Put your gem's CHANGELOG.md URL here."
+  spec.metadata["source_code_uri"] = ""
+  spec.metadata["changelog_uri"] = ""
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
@@ -32,6 +32,10 @@ Gem::Specification.new do |spec|
   spec.bindir = "exe"
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
+
+  spec.add_runtime_dependency "thor", "~> 1.2"
+  spec.add_runtime_dependency "sqlite3", "~> 1.5"
+  spec.add_development_dependency "rspec", "~> 3.12"
 
   # Uncomment to register a new dependency of your gem
   # spec.add_dependency "example-gem", "~> 1.0"
