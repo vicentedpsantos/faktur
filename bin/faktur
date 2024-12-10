@@ -1,4 +1,3 @@
 #!/usr/bin/env ruby
 require "faktur"
-
 Faktur::CLI.start(ARGV)

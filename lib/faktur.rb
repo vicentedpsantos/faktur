@@ -7,6 +7,7 @@ require_relative "faktur/version"
 
 module Faktur
   class CLI < Thor
+    desc "configure", "Configure Faktur"
     def configure
       puts "Running configure command..."
     end
