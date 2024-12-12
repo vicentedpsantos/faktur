@@ -28,7 +28,7 @@ module Faktur
       db = SQLite3::Database.new(DB_PATH)
       results = db.execute("SELECT * FROM #{table_name}")
 
-      results.map { |row| Faktur::Configuration.new(row) }
+      results.map { |row| Faktur::Models::Configuration.new(row, from_rows: true) }
     end
 
     # rubocop:disable Metrics/MethodLength

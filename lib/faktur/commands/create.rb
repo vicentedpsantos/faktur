@@ -21,7 +21,7 @@ CONFIGURATION_PROMPTS = {
 }.freeze
 
 module Faktur
-  module Command
+  module Commands
     # Create resources class
     class Create < Thor
       desc "configuration NAME", "Create a new invoice configuration"

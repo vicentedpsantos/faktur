@@ -4,16 +4,15 @@ module Faktur
   module Models
     # Configuration class
     class Configuration
-      attr_reader :name, :client_name, :client_address, :client_vat, :beneficiary_name,
-                  :beneficiary_tax_number, :beneficiary_address, :bank_account_beneficiary_name,
-                  :bank_account_address, :bank_account_iban, :bank_account_swift, :bank_name,
-                  :payment_terms, :service_description, :invoice_numbering
-
+      # Order matters because it's used to initialize the object from rows.
       ATTRS = %i[
-        name client_name client_address client_vat beneficiary_name beneficiary_tax_number
-        beneficiary_address bank_account_beneficiary_name bank_account_address bank_account_iban
-        bank_account_swift bank_name payment_terms service_description invoice_numbering
+        id name client_name client_address client_vat beneficiary_name
+        beneficiary_tax_number beneficiary_address bank_account_beneficiary_name
+        bank_account_address bank_account_iban bank_account_swift bank_name 
+        payment_terms service_description invoice_numbering
       ].freeze
+
+      attr_reader(*ATTRS)
 
       def initialize(attributes, from_rows: false)
         if from_rows
@@ -26,9 +25,9 @@ module Faktur
       private
 
       def initialize_from_rows(rows)
+        puts rows.inspect
         ATTRS.each_with_index do |attr, index|
-          # We add 1 to the index because the first row is the id
-          instance_variable_set("@#{attr}", rows[index + 1])
+          instance_variable_set("@#{attr}", rows[index])
         end
       end
     end

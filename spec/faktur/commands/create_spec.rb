@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Faktur::Command::Create do
+RSpec.describe Faktur::Commands::Create do
   subject(:create_command) { described_class.new }
 
   let(:config_name) { "test_config" }

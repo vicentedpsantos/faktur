@@ -4,14 +4,14 @@ require "thor"
 require "sqlite3"
 
 require_relative "faktur/version"
-require_relative "./faktur/command/create"
-require_relative "./faktur/command/list"
+require_relative "./faktur/commands/create"
+require_relative "./faktur/commands/list"
 
 module Faktur
   # CLI class
   class CLI < Thor
-    register(Faktur::Command::Create, "create", "create [resource]", "Type faktur create for help")
-    register(Faktur::Command::List, "list", "list [resource]", "Type faktur list for help")
+    register(Faktur::Commands::Create, "create", "create [resource]", "Type faktur create for help")
+    register(Faktur::Commands::List, "list", "list [resource]", "Type faktur list for help")
 
     # desc "new AMOUNT CURRENCY", "Create a new invoice"
     # def new(amount, currency)
