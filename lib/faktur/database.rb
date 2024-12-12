@@ -1,12 +1,28 @@
 # frozen_string_literal: true
 
-require 'sqlite3'
+require "sqlite3"
 
 module Faktur
   # Database class
   class Database
+    DB_PATH = File.expand_path("~/.config/faktur/config.db")
+
     def self.setup
-      db = SQLite3::Database.new(File.expand_path("~/.config/faktur/config.db"))
+      db = SQLite3::Database.new(DB_PATH)
+      create_config_table(db)
+      db.close
+    end
+
+    def self.create(config)
+      setup
+
+      db = SQLite3::Database.new(DB_PATH)
+      insert_config(db, config)
+      db.close
+    end
+
+    # rubocop:disable Metrics/MethodLength
+    def self.create_config_table(db)
       db.execute(
         <<-SQL
           CREATE TABLE IF NOT EXISTS config (
@@ -29,17 +45,16 @@ module Faktur
           );
         SQL
       )
-
-      db.close
     end
 
-    def self.create(config)
-      setup
-
-      db = SQLite3::Database.new(File.expand_path("~/.config/faktur/config.db"))
-
+    def self.insert_config(db, config)
       db.execute(
-        "INSERT INTO config ( client_name, client_address, client_vat, beneficiary_name, beneficiary_tax_number, beneficiary_address, bank_account_beneficiary_name, bank_account_address, bank_account_iban, bank_account_swift, bank_name, name, payment_terms, service_description, invoice_numbering) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO config (
+          client_name, client_address, client_vat, beneficiary_name,
+          beneficiary_tax_number, beneficiary_address, bank_account_beneficiary_name,
+          bank_account_address, bank_account_iban, bank_account_swift, bank_name,
+          name, payment_terms, service_description, invoice_numbering
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         config[:client_name],
         config[:client_address],
         config[:client_vat],
@@ -56,10 +71,7 @@ module Faktur
         config[:service_description],
         config[:invoice_numbering]
       )
-
-      db.close
     end
-
-    private
+    # rubocop:enable Metrics/MethodLength
   end
 end

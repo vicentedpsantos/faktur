@@ -3,7 +3,7 @@
 require "thor"
 require_relative "../database"
 
-PROMPTS = {
+CONFIGURATION_PROMPTS = {
   client_name: "Enter the default client name: ",
   client_address: "Enter the default client address: ",
   client_vat: "Enter the default client VAT (optional): ",
@@ -30,7 +30,7 @@ module Faktur
 
         config = { name: name }
 
-        PROMPTS.each { |key, prompt| config[key] = ask(prompt) }
+        CONFIGURATION_PROMPTS.each { |key, prompt| config[key] = ask(prompt) }
 
         save_configuration(config)
 
