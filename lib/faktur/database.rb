@@ -18,17 +18,24 @@ module Faktur
       setup
 
       db = SQLite3::Database.new(DB_PATH)
-      insert_config(db, config)
-      db.close
+
+      begin
+        insert_config(db, config)
+        puts "Resource saved successfully!"
+      rescue SQLite3::ConstraintException => e
+        puts "Resource not saved: #{e.message}"
+      ensure
+        db.close
+      end
     end
 
-    def self.list(table_name)
+    def self.list(table_name, model)
       setup
 
       db = SQLite3::Database.new(DB_PATH)
       results = db.execute("SELECT * FROM #{table_name}")
 
-      results.map { |row| Faktur::Models::Configuration.new(row, from_rows: true) }
+      results.map { |row| model.new(row, from_rows: true) }
     end
 
     # rubocop:disable Metrics/MethodLength

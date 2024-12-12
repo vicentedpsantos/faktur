@@ -33,8 +33,6 @@ module Faktur
         CONFIGURATION_PROMPTS.each { |key, prompt| config[key] = ask(prompt) }
 
         save_configuration(config)
-
-        puts "Configuration saved successfully!"
       end
 
       private

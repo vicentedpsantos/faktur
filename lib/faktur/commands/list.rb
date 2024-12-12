@@ -10,7 +10,7 @@ module Faktur
       desc "configurations", "List all invoice configurations"
 
       def configurations
-        configs = list("configs")
+        configs = list("configs", Faktur::Models::Configuration)
 
         puts "Listing all invoice configurations by name..."
         configs.each do |config|
@@ -20,8 +20,8 @@ module Faktur
 
       private
 
-      def list(table_name)
-        Faktur::Database.list(table_name)
+      def list(table_name, model)
+        Faktur::Database.list(table_name, model)
       end
     end
   end

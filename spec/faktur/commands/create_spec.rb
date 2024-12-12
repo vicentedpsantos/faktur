@@ -49,10 +49,5 @@ RSpec.describe Faktur::Commands::Create do
 
       expect(Faktur::Database).to have_received(:create).with(expected_config)
     end
-
-    it "prints a success message" do
-      expect { create_command.configuration(config_name) }
-        .to output(/Configuration saved successfully!/).to_stdout
-    end
   end
 end
