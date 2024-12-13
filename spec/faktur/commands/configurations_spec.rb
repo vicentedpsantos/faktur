@@ -51,7 +51,7 @@ RSpec.describe Faktur::Commands::Configurations do
 
       configuration_commands.create(config_name)
 
-      expect(Faktur::Database).to have_received(:create).with(expected_config)
+      expect(Faktur::Database).to have_received(:create).with("configs", expected_config)
     end
   end
 

@@ -20,6 +20,8 @@ CONFIGURATION_PROMPTS = {
   invoice_numbering: "Choose the default invoice numbering system (sequential or random): "
 }.freeze
 
+TABLE_NAME = "configs"
+
 module Faktur
   module Commands
     # Configurations commands class
@@ -36,7 +38,6 @@ module Faktur
       desc "list", "List all configurations"
       def list
         configs = list_configurations(
-          "configs",
           ->(row) { Faktur::Models::Configuration.new(row, from_rows: true) }
         )
 
@@ -45,12 +46,12 @@ module Faktur
 
       private
 
-      def list_configurations(table_name, model)
-        Faktur::Database.list(table_name, model)
+      def list_configurations(build_fn)
+        Faktur::Database.list(TABLE_NAME, build_fn)
       end
 
       def save_configuration(config)
-        Faktur::Database.create(config)
+        Faktur::Database.create(TABLE_NAME, config)
       end
     end
   end

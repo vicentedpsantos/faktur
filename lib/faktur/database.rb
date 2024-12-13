@@ -2,6 +2,7 @@
 
 require "sqlite3"
 require_relative "./models/configuration"
+require_relative "sql_queries"
 
 module Faktur
   # Database class
@@ -14,13 +15,13 @@ module Faktur
       db.close
     end
 
-    def self.create(config)
+    def self.create(table_name, data)
       setup
 
       db = SQLite3::Database.new(DB_PATH)
 
       begin
-        insert_config(db, config)
+        insert_data(db, table_name, data)
         puts "Resource saved successfully!"
       rescue SQLite3::ConstraintException => e
         puts "Resource not saved: #{e.message}"
@@ -38,57 +39,19 @@ module Faktur
       results.map { |row| build_fn.call(row) }
     end
 
-    # rubocop:disable Metrics/MethodLength
     def self.create_tables(db)
-      db.execute(
-        <<-SQL
-          CREATE TABLE IF NOT EXISTS configs (
-            id INTEGER PRIMARY KEY,
-            name TEXT UNIQUE,
-            client_name TEXT,
-            client_address TEXT,
-            client_vat TEXT,
-            beneficiary_name TEXT,
-            beneficiary_tax_number TEXT,
-            beneficiary_address TEXT,
-            bank_account_beneficiary_name TEXT,
-            bank_account_address TEXT,
-            bank_account_iban TEXT,
-            bank_account_swift TEXT,
-            bank_name TEXT,
-            payment_terms TEXT,
-            service_description TEXT,
-            invoice_numbering TEXT
-          );
-        SQL
-      )
+      db.execute(SQLQueries::CREATE_TABLES)
     end
 
-    def self.insert_config(db, config)
+    def self.insert_data(db, table_name, data)
+      columns = data.keys.join(", ")
+      placeholders = (["?"] * data.keys.size).join(", ")
+      values = data.values
+
       db.execute(
-        "INSERT INTO configs (
-          name, client_name, client_address, client_vat, beneficiary_name,
-          beneficiary_tax_number, beneficiary_address, bank_account_beneficiary_name,
-          bank_account_address, bank_account_iban, bank_account_swift, bank_name,
-          payment_terms, service_description, invoice_numbering
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        config[:name],
-        config[:client_name],
-        config[:client_address],
-        config[:client_vat],
-        config[:beneficiary_name],
-        config[:beneficiary_tax_number],
-        config[:beneficiary_address],
-        config[:bank_account_beneficiary_name],
-        config[:bank_account_address],
-        config[:bank_account_iban],
-        config[:bank_account_swift],
-        config[:bank_name],
-        config[:payment_terms],
-        config[:service_description],
-        config[:invoice_numbering]
+        "INSERT INTO #{table_name} (#{columns}) VALUES (#{placeholders})",
+        values
       )
     end
-    # rubocop:enable Metrics/MethodLength
   end
 end
