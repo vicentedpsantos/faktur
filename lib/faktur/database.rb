@@ -39,6 +39,38 @@ module Faktur
       results.map { |row| build_fn.call(row) }
     end
 
+    # Rubocop: disable Metrics/MethodLength
+    def self.update(table_name, id, data)
+      setup
+      db = SQLite3::Database.new(DB_PATH)
+
+      begin
+        execute_update(db, table_name, id, data)
+        updated_record = get_record(db, table_name, id)
+        puts "Resource updated successfully!"
+        updated_record
+      rescue SQLite3::ConstraintException => e
+        puts "Resource not updated: #{e.message}"
+      ensure
+        db.close
+      end
+    end
+    # Rubocop: enable Metrics/MethodLength
+
+    def self.get_record(db, table_name, id)
+      db.execute("SELECT * FROM #{table_name} WHERE id = ?", id).first
+    end
+
+    def self.execute_update(db, table_name, id, data)
+      set_clause = data.keys.map { |key| "#{key} = ?" }.join(", ")
+      values = data.values << id
+
+      db.execute(
+        "UPDATE #{table_name} SET #{set_clause} WHERE id = ?",
+        values
+      )
+    end
+
     def self.create_tables(db)
       db.execute(SQLQueries::CREATE_TABLES)
     end
