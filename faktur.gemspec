@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email = ["vicentedpsantos@gmail.com"]
 
   spec.summary = "A CLI tool for generating and managing invoices."
-  spec.description = "Faktur simplifies invoice creation and management via the command line, supporting custom configuration storage"
+  spec.description = "Faktur simplifies invoice creation and management via the command line"
   spec.homepage = "https://github.com/vicentedpsantos/faktur"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.0.0"

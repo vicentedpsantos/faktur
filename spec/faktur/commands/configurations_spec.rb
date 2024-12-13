@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-RSpec.describe Faktur::Commands::Create do
-  subject(:create_command) { described_class.new }
+# rubocop:disable Metrics/BlockLength
+RSpec.describe Faktur::Commands::Configurations do
+  subject(:configuration_commands) { described_class.new }
 
   let(:config_name) { "test_config" }
   let(:mock_config_data) do
@@ -25,7 +26,7 @@ RSpec.describe Faktur::Commands::Create do
   end
 
   before do
-    allow(create_command).to receive(:ask) do |prompt|
+    allow(configuration_commands).to receive(:ask) do |prompt|
       key = CONFIGURATION_PROMPTS.key(prompt)
       mock_config_data[key] if key
     end
@@ -33,21 +34,45 @@ RSpec.describe Faktur::Commands::Create do
     allow(Faktur::Database).to receive(:create)
   end
 
-  describe "#configuration" do
+  describe "#create" do
     it "prompts the user for each configuration value" do
       CONFIGURATION_PROMPTS.each do |key, prompt|
-        expect(create_command).to receive(:ask).with(prompt).and_return(mock_config_data[key])
+        expect(configuration_commands)
+          .to receive(:ask)
+          .with(prompt)
+          .and_return(mock_config_data[key])
       end
 
-      create_command.configuration(config_name)
+      configuration_commands.create(config_name)
     end
 
     it "saves the configuration with the correct data" do
       expected_config = mock_config_data
 
-      create_command.configuration(config_name)
+      configuration_commands.create(config_name)
 
       expect(Faktur::Database).to have_received(:create).with(expected_config)
     end
   end
+
+  describe "#list" do
+    let(:mock_config) { double("Configuration", id: 1, name: config_name) }
+
+    before do
+      allow(Faktur::Database).to receive(:list).and_return([mock_config])
+    end
+
+    it "lists all configurations" do
+      expect { configuration_commands.list }
+        .to output("ID 1 · #{config_name}\n")
+        .to_stdout
+    end
+
+    it "does not prompt the user for any input" do
+      expect(configuration_commands).not_to receive(:ask)
+
+      configuration_commands.list
+    end
+  end
 end
+# rubocop:enable Metrics/BlockLength

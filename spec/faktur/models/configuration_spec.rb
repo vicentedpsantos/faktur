@@ -1,5 +1,8 @@
+# frozen_string_literal: true
+
 require "spec_helper"
 
+# rubocop:disable Metrics/BlockLength
 RSpec.describe Faktur::Models::Configuration do
   subject(:configuration) { described_class }
 
@@ -60,3 +63,4 @@ RSpec.describe Faktur::Models::Configuration do
     end
   end
 end
+# rubocop:enable Metrics/BlockLength

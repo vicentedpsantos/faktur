@@ -22,12 +22,10 @@ CONFIGURATION_PROMPTS = {
 
 module Faktur
   module Commands
-    # Create resources class
-    class Create < Thor
-      desc "configuration NAME", "Create a new invoice configuration"
-      def configuration(name)
-        puts "Setting up your invoice configuration..."
-
+    # Configurations commands class
+    class Configurations < Thor
+      desc "create NAME", "Create a new invoice configuration"
+      def create(name)
         config = { name: name }
 
         CONFIGURATION_PROMPTS.each { |key, prompt| config[key] = ask(prompt) }
@@ -35,7 +33,21 @@ module Faktur
         save_configuration(config)
       end
 
+      desc "list", "List all configurations"
+      def list
+        configs = list_configurations(
+          "configs",
+          ->(row) { Faktur::Models::Configuration.new(row, from_rows: true) }
+        )
+
+        configs.each { |config| puts "ID #{config.id} · #{config.name}" }
+      end
+
       private
+
+      def list_configurations(table_name, model)
+        Faktur::Database.list(table_name, model)
+      end
 
       def save_configuration(config)
         Faktur::Database.create(config)

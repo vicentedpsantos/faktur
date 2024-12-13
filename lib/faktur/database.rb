@@ -10,7 +10,7 @@ module Faktur
 
     def self.setup
       db = SQLite3::Database.new(DB_PATH)
-      create_config_table(db)
+      create_tables(db)
       db.close
     end
 
@@ -29,17 +29,17 @@ module Faktur
       end
     end
 
-    def self.list(table_name, model)
+    def self.list(table_name, build_fn = ->(x) { x })
       setup
 
       db = SQLite3::Database.new(DB_PATH)
       results = db.execute("SELECT * FROM #{table_name}")
 
-      results.map { |row| model.new(row, from_rows: true) }
+      results.map { |row| build_fn.call(row) }
     end
 
     # rubocop:disable Metrics/MethodLength
-    def self.create_config_table(db)
+    def self.create_tables(db)
       db.execute(
         <<-SQL
           CREATE TABLE IF NOT EXISTS configs (
