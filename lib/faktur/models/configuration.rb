@@ -15,14 +15,14 @@ module Faktur
       attr_reader(*ATTRS)
 
       def initialize(attributes, from_rows: false)
-        if from_rows
-          initialize_from_rows(attributes)
-        else
-          ATTRS.each { |attr| instance_variable_set("@#{attr}", attributes[attr]) }
-        end
+        from_rows ? initialize_from_rows(attributes) : initialize_from_attributes(attributes)
       end
 
       private
+
+      def initialize_from_attributes(attributes)
+        ATTRS.each { |attr| instance_variable_set("@#{attr}", attributes[attr]) }
+      end
 
       def initialize_from_rows(rows)
         ATTRS.each_with_index do |attr, index|

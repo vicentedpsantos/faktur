@@ -75,4 +75,28 @@ RSpec.describe Faktur::Database do
       db.close
     end
   end
+
+  describe ".find" do
+    it "finds a record by a specific attribute" do
+      Faktur::Database.create(table_name, data)
+      result = Faktur::Database.find_by(table_name, { name: "Test" })
+      expect(result).not_to be_nil
+      expect(result).to include(*data.values)
+    end
+  end
+
+  describe ".delete" do
+    it "deletes a record by its ID" do
+      Faktur::Database.create(table_name, data)
+      db = SQLite3::Database.new(db_path)
+      id = db.execute("SELECT id FROM #{table_name}").first.first
+      db.close
+
+      Faktur::Database.delete(table_name, id)
+      db = SQLite3::Database.new(db_path)
+      result = db.execute("SELECT * FROM #{table_name} WHERE id = ?", id)
+      expect(result).to be_empty
+      db.close
+    end
+  end
 end

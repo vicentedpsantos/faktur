@@ -61,6 +61,22 @@ module Faktur
       db.execute("SELECT * FROM #{table_name} WHERE id = ?", id).first
     end
 
+    def self.find_by(table_name, find_by, build_fn = ->(x) { x })
+      setup
+
+      db = SQLite3::Database.new(DB_PATH)
+      result = db.execute("SELECT * FROM #{table_name} WHERE #{find_by.keys.first} = ?", find_by.values.first).first
+      build_fn.call(result)
+    end
+
+    def self.delete(table_name, id)
+      db = SQLite3::Database.new(DB_PATH)
+      db.execute("DELETE FROM #{table_name} WHERE id = ?", id)
+      db.close
+    rescue SQLite3::SQLException => e
+      puts "Record could not be deleted: #{e.message}"
+    end
+
     def self.execute_update(db, table_name, id, data)
       set_clause = data.keys.map { |key| "#{key} = ?" }.join(", ")
       values = data.values << id

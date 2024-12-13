@@ -44,7 +44,32 @@ module Faktur
         configs.each { |config| puts "ID #{config.id} · #{config.name}" }
       end
 
+      desc "show NAME", "Show a configuration"
+      def show(name)
+        config = get_configuration(name, ->(row) { Faktur::Models::Configuration.new(row, from_rows: true) })
+
+        Faktur::Models::Configuration::ATTRS.each do |attr|
+          puts "#{attr.to_s.split("_").map(&:capitalize).join(" ")}: #{config.send(attr)}"
+        end
+      end
+
+      desc "delete ID", "Delete a configuration"
+      def delete(id)
+        delete_configuration(id)
+
+        puts "Configuration deleted successfully!"
+      end
+
       private
+
+      def delete_configuration(id)
+        Faktur::Database.delete(TABLE_NAME, id)
+      end
+
+
+      def get_configuration(name, build_fn)
+        config = Faktur::Database.find_by(TABLE_NAME, { name: name }, build_fn)
+      end
 
       def list_configurations(build_fn)
         Faktur::Database.list(TABLE_NAME, build_fn)
