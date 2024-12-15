@@ -18,12 +18,11 @@ module Faktur
 
     def self.create(table_name, data)
       setup
-
       db = SQLite3::Database.new(DB_PATH)
 
       begin
         insert_data(db, table_name, data)
-        puts "Resource saved successfully!"
+        yield if block_given?
       rescue SQLite3::ConstraintException => e
         puts "Resource not saved: #{e.message}"
       ensure
@@ -31,51 +30,30 @@ module Faktur
       end
     end
 
-    def self.list(table_name, build_fn = ->(x) { x })
-      setup
+    def self.list(table_name)
+      where = build_where_clause(where)
 
-      db = SQLite3::Database.new(DB_PATH)
-      results = db.execute("SELECT * FROM #{table_name}")
+      process do
+        results db.execute("SELECT * FROM #{table_name}#{where}")
 
-      results.map { |row| build_fn.call(row) }
-    end
-
-    # Rubocop: disable Metrics/MethodLength
-    def self.update(table_name, id, data)
-      setup
-      db = SQLite3::Database.new(DB_PATH)
-
-      begin
-        execute_update(db, table_name, id, data)
-        updated_record = get_record(db, table_name, id)
-        puts "Resource updated successfully!"
-        updated_record
-      rescue SQLite3::ConstraintException => e
-        puts "Resource not updated: #{e.message}"
-      ensure
-        db.close
+        yield results if block_given?
       end
     end
-    # Rubocop: enable Metrics/MethodLength
+
+    def self.build_where_clause(where)
+      return "" if where.empty?
+
+      where.map { |k, v| "#{k} = '#{v}'" }.join(" AND ").prepend(" WHERE ")
+    end
 
     def self.get_record(db, table_name, id)
-      db.execute("SELECT * FROM #{table_name} WHERE id = ?", id).first
+      process { db.execute("SELECT * FROM #{table_name} WHERE id = ?", id).first }
     end
 
-    def self.find_by(table_name, find_by, build_fn = ->(x) { x })
+    def self.delete(table_name, where)
       setup
-
-      db = SQLite3::Database.new(DB_PATH)
-      result = db.execute("SELECT * FROM #{table_name} WHERE #{find_by.keys.first} = ?", find_by.values.first).first
-      build_fn.call(result)
-    end
-
-    def self.delete(table_name, id)
-      db = SQLite3::Database.new(DB_PATH)
-      db.execute("DELETE FROM #{table_name} WHERE id = ?", id)
-      db.close
-    rescue SQLite3::SQLException => e
-      puts "Record could not be deleted: #{e.message}"
+      where = build_where_clause(where)
+      process { db.execute("DELETE FROM #{table_name}#{where}", id) }
     end
 
     def self.execute_update(db, table_name, id, data)
@@ -86,6 +64,19 @@ module Faktur
         "UPDATE #{table_name} SET #{set_clause} WHERE id = ?",
         values
       )
+    end
+
+    def self.process
+      setup
+      db = SQLite3::Database.new(DB_PATH)
+
+      begin
+        yield
+      rescue SQLite3::SQLException => e
+        puts "Error: #{e.message}"
+      ensure
+        db.close
+      end
     end
 
     def self.create_tables(db)
