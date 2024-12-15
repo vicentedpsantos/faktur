@@ -47,8 +47,9 @@ module Faktur
       end
 
       def fetch_last_invoice_number_for_client(client_id)
-        last_invoice = Faktur::Data::Invoice.list({ client_id: client_id }).last
-        last_invoice ? last_invoice.number : "0"
+        Faktur::Data::Invoice.list({ client_id: client_id }).last.number
+      rescue
+        "0"
       end
 
       def payment_term_days

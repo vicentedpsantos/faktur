@@ -7,7 +7,8 @@ require_relative "../models/configuration"
 
 INVOICE_PROMPTS = {
   client_name: "Enter the client name: ",
-  amount: "Enter the amount: "
+  amount: "Enter the amount: ",
+  currency: "Enter the currency (e.g. USD): "
 }.freeze
 
 module Faktur
@@ -20,10 +21,24 @@ module Faktur
       def create
         input = {}
         INVOICE_PROMPTS.each { |key, prompt| input[key] = ask(prompt) }
-        client_config = get_configuration(input)
-        invoice = Faktur::Models::Invoice.new(input, client_config)
+        client_config = Faktur::Data::Configuration.find_by({ name: input[:client_name] })
+        invoice = Faktur::Models::Invoice.new(input, client_config: client_config)
 
         save_invoice(invoice)
+      end
+
+      desc "list", "List all invoices"
+      def list
+        invoices = Faktur::Data::Invoice.list
+
+        invoices.each do |invoice|
+          puts <<-TEXT
+            ID #{invoice.id} · \
+            #{invoice.client_name} · \
+            #{invoice.amount} · #{invoice.currency} · \
+            #{invoice.created_at}"
+          TEXT
+        end
       end
 
       private

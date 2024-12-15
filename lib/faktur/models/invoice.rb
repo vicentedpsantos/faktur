@@ -4,9 +4,15 @@ module Faktur
   module Models
     # Configuration class
     class Invoice
-      def initialize(attributes, client_config, from_rows: false)
-        @attributes = attributes
-        @client_config = client_config
+      ATTRS = %i[
+        id client_id client_name amount currency
+        invoice_date due_date number created_at
+      ].freeze
+
+      attr_reader(*ATTRS)
+
+      def initialize(attributes, client_config: nil, from_rows: false)
+        from_rows ? initialize_from_rows(attributes) : initialize_from_input(attributes, client_config)
       end
 
       def to_h
@@ -16,9 +22,22 @@ module Faktur
           currency: @attributes[:currency],
           invoice_date: Time.now.strftime("%Y-%m-%d"),
           due_date: @client_config.due_date,
-          invoice_number: @client_config.next_invoice_number,
+          number: @client_config.next_invoice_number,
           client_id: @client_config.id
         }
+      end
+
+      private
+
+      def initialize_from_rows(attributes)
+        ATTRS.each_with_index do |attr, index|
+          instance_variable_set("@#{attr}", attributes[index])
+        end
+      end
+
+      def initialize_from_input(attributes, client_config)
+        @attributes = attributes
+        @client_config = client_config
       end
     end
   end
