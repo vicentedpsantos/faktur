@@ -29,7 +29,7 @@ module Faktur
       end
 
       def self.delete(where = {})
-        Faktur::Database.delete(where)
+        Faktur::Database.delete(TABLE_NAME, where)
       end
 
       def self.execute_update(db, table_name, id, data)

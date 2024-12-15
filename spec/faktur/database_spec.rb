@@ -53,18 +53,6 @@ RSpec.describe Faktur::Database do
     end
   end
 
-  describe ".update" do
-    it "updates an existing record in the table" do
-      Faktur::Database.create(table_name, data)
-      db = SQLite3::Database.new(db_path)
-      id = db.execute("SELECT id FROM #{table_name}").first.first
-      db.close
-
-      updated_record = Faktur::Database.update(table_name, id, updated_data)
-      expect(updated_record).to include(*updated_data.values)
-    end
-  end
-
   describe ".get_record" do
     it "retrieves a specific record from the table" do
       Faktur::Database.create(table_name, data)

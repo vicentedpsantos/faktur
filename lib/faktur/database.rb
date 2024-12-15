@@ -17,24 +17,18 @@ module Faktur
     end
 
     def self.create(table_name, data)
-      setup
-      db = SQLite3::Database.new(DB_PATH)
-
-      begin
+      process do |db|
         insert_data(db, table_name, data)
+
         yield if block_given?
-      rescue SQLite3::ConstraintException => e
-        puts "Resource not saved: #{e.message}"
-      ensure
-        db.close
       end
     end
 
-    def self.list(table_name)
+    def self.list(table_name, where = {})
       where = build_where_clause(where)
 
-      process do
-        results db.execute("SELECT * FROM #{table_name}#{where}")
+      process do |db|
+        results = db.execute("SELECT * FROM #{table_name}#{where}")
 
         yield results if block_given?
       end
@@ -46,14 +40,17 @@ module Faktur
       where.map { |k, v| "#{k} = '#{v}'" }.join(" AND ").prepend(" WHERE ")
     end
 
-    def self.get_record(db, table_name, id)
-      process { db.execute("SELECT * FROM #{table_name} WHERE id = ?", id).first }
+    def self.get_record(table_name, id)
+      process do |db|
+        db.execute("SELECT * FROM #{table_name} WHERE id = ?", id).first
+      end
     end
 
     def self.delete(table_name, where)
-      setup
       where = build_where_clause(where)
-      process { db.execute("DELETE FROM #{table_name}#{where}", id) }
+      process do |db|
+        db.execute("DELETE FROM #{table_name}#{where}")
+      end
     end
 
     def self.execute_update(db, table_name, id, data)
@@ -71,7 +68,7 @@ module Faktur
       db = SQLite3::Database.new(DB_PATH)
 
       begin
-        yield
+        yield db
       rescue SQLite3::SQLException => e
         puts "Error: #{e.message}"
       ensure
