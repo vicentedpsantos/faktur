@@ -24,7 +24,7 @@ module Faktur
         client_config = Faktur::Data::Configuration.find_by({ name: input[:client_name] })
         invoice = Faktur::Models::Invoice.new(input, client_config: client_config)
 
-        save_invoice(invoice)
+        Faktur::Database.create(TABLE_NAME, invoice.to_h)
       end
 
       desc "list", "List all invoices"
@@ -41,18 +41,17 @@ module Faktur
         end
       end
 
-      private
+      desc "print", "Print an invoice"
+      def print(id)
+        invoice = Faktur::Data::Invoice.find_by({ id: id })
+        client_config = Faktur::Data::Configuration({ id: invoice.client_id })
 
-      def get_configuration(input)
-        Faktur::Database.find_by(
-          "configs",
-          { name: input[:client_name] },
-          ->(row) { Faktur::Models::Configuration.new(row, from_rows: true) }
-        )
-      end
+        pdf = Faktur::Views::Invoices::PDF.new(invoice, client_config)
+        pdf_file = pdf.render
 
-      def save_invoice(invoice)
-        Faktur::Database.create(TABLE_NAME, invoice.to_h)
+        File.open("invoice.pdf", "wb") do |file|
+          file.write(pdf_file)
+        end
       end
     end
   end

@@ -21,6 +21,10 @@ module Faktur
           results.map { |row| Faktur::Models::Invoice.new(row, from_rows: true) }
         end
       end
+
+      def self.find_by(where)
+        list(where).first
+      end
     end
   end
 end

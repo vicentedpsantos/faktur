@@ -6,4 +6,5 @@ require "fileutils"
 require "faktur"
 
 FileUtils.mkdir_p(Faktur::Database::DB_DIR)
+FileUtils.mkdir_p("#{Faktur::Database::DB_DIR}/exports")
 Faktur::CLI.start(ARGV)
