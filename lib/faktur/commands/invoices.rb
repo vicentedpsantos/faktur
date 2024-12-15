@@ -44,7 +44,7 @@ module Faktur
       desc "print", "Print an invoice"
       def print(id)
         invoice = Faktur::Data::Invoice.find_by({ id: id })
-        client_config = Faktur::Data::Configuration({ id: invoice.client_id })
+        client_config = Faktur::Data::Configuration.find_by({ id: invoice.client_id })
 
         pdf = Faktur::Views::Invoices::PDF.new(invoice, client_config)
         pdf_file = pdf.render

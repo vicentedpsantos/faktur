@@ -3,6 +3,7 @@
 require "sqlite3"
 require_relative "../models/configuration"
 require_relative "../database"
+require_relative "../views/invoices/pdf"
 
 module Faktur
   module Data
