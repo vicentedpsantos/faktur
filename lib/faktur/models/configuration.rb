@@ -38,7 +38,7 @@ module Faktur
       private
 
       def generate_random_invoice_number
-        (0...8).map { (65 + rand(26)).chr }.join
+        (0...8).map { rand(65..90).chr }.join
       end
 
       def generate_sequential_invoice_number

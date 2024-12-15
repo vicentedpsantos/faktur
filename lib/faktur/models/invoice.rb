@@ -20,7 +20,6 @@ module Faktur
           client_id: @client_config.id
         }
       end
-
     end
   end
 end

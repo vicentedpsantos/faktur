@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "spec_helper"
 
 RSpec.describe Faktur::Commands::Configurations do
@@ -111,22 +113,22 @@ RSpec.describe Faktur::Commands::Configurations do
 
       it "shows the configuration" do
         expected_output = <<~OUTPUT
-        Id: test_config
-        Name: Client Co.
-        Client Name: 1234 Elm Street
-        Client Address: 123456789
-        Client Vat: Beneficiary Name
-        Beneficiary Name: 987654321
-        Beneficiary Tax Number: 4321 Oak Avenue
-        Beneficiary Address: Bank Beneficiary
-        Bank Account Beneficiary Name: 5678 Pine Blvd
-        Bank Account Address: IBAN1234567890
-        Bank Account Iban: SWIFT12345
-        Bank Account Swift: Big Bank
-        Bank Name: 30d
-        Payment Terms: Consulting services
-        Service Description: sequential
-        Invoice Numbering: 
+          Id: test_config
+          Name: Client Co.
+          Client Name: 1234 Elm Street
+          Client Address: 123456789
+          Client Vat: Beneficiary Name
+          Beneficiary Name: 987654321
+          Beneficiary Tax Number: 4321 Oak Avenue
+          Beneficiary Address: Bank Beneficiary
+          Bank Account Beneficiary Name: 5678 Pine Blvd
+          Bank Account Address: IBAN1234567890
+          Bank Account Iban: SWIFT12345
+          Bank Account Swift: Big Bank
+          Bank Name: 30d
+          Payment Terms: Consulting services
+          Service Description: sequential
+          Invoice Numbering:#{" "}
         OUTPUT
 
         expect { configuration_commands.show(config_name) }

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "thor"
-require_relative "../database"
+require_relative "../data/configuration"
 
 module Faktur
   module Commands
@@ -29,27 +29,19 @@ module Faktur
       desc "create NAME", "Create a new invoice configuration"
       def create(name)
         config = { name: name }
-
         CONFIGURATION_PROMPTS.each { |key, prompt| config[key] = ask(prompt) }
-
-        save_configuration(config)
+        Faktur::Data::Configuration.create(config)
       end
 
       desc "list", "List all configurations"
       def list
-        configs = list_configurations(
-          ->(row) { Faktur::Models::Configuration.new(row, from_rows: true) }
-        )
-
+        configs = Faktur::Data::Configuration.list
         configs.each { |config| puts "ID #{config.id} · #{config.name}" }
       end
 
       desc "show NAME", "Show a configuration"
       def show(name)
-        config = get_configuration(
-          name,
-          ->(row) { Faktur::Models::Configuration.new(row, from_rows: true) }
-        )
+        config = Faktur::Data::Configuration.find_by(name: name)
 
         Faktur::Models::Configuration::ATTRS.each do |attr|
           puts "#{attr.to_s.split("_").map(&:capitalize).join(" ")}: #{config.send(attr)}"
@@ -58,27 +50,7 @@ module Faktur
 
       desc "delete ID", "Delete a configuration"
       def delete(id)
-        delete_configuration(id)
-
-        puts "Configuration deleted successfully!"
-      end
-
-      private
-
-      def delete_configuration(id)
-        Faktur::Database.delete(TABLE_NAME, id)
-      end
-
-      def get_configuration(name, build_fn)
-        Faktur::Database.find_by(TABLE_NAME, { name: name }, build_fn)
-      end
-
-      def list_configurations(build_fn)
-        Faktur::Database.list(TABLE_NAME, build_fn)
-      end
-
-      def save_configuration(config)
-        Faktur::Database.create(TABLE_NAME, config)
+        Faktur::Data::Configuration.delete({ id: id })
       end
     end
   end

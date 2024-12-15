@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "thor"
 require_relative "../database"
 require_relative "../models/invoice"
@@ -12,7 +14,7 @@ module Faktur
   module Commands
     # Invoices commands class
     class Invoices < Thor
-      TABLE_NAME = "invoices".freeze
+      TABLE_NAME = "invoices"
 
       desc "create", "Create a new invoice"
       def create
