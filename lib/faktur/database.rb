@@ -7,7 +7,8 @@ require_relative "sql_queries"
 module Faktur
   # Database class
   class Database
-    DB_PATH = File.expand_path("~/.config/faktur/faktur.db")
+    DB_DIR = File.expand_path("~/.config/faktur")
+    DB_PATH = "#{DB_DIR}/faktur.db".freeze
 
     def self.setup
       db = SQLite3::Database.new(DB_PATH)

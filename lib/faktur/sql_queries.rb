@@ -20,5 +20,18 @@ module SQLQueries
       service_description TEXT,
       invoice_numbering TEXT
     );
+
+    CREATE TABLE IF NOT EXISTS invoices (
+      id INTEGER PRIMARY KEY,
+      client_id INTEGER,
+      client_name TEXT,
+      amount TEXT,
+      currency TEXT,
+      invoice_date TEXT,
+      due_date TEXT,
+      invoice_number TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (client_id) REFERENCES configs (id)
+    );
   SQL
 end

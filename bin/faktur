@@ -1,5 +1,9 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+# Make sure that the config directory exists
+require "fileutils"
 require "faktur"
+
+FileUtils.mkdir_p(Faktur::Database::DB_DIR)
 Faktur::CLI.start(ARGV)

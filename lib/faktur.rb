@@ -5,6 +5,7 @@ require "sqlite3"
 
 require_relative "faktur/version"
 require_relative "./faktur/commands/configurations"
+require_relative "./faktur/commands/invoices"
 
 module Faktur
   # CLI class
@@ -14,6 +15,13 @@ module Faktur
       "configurations",
       "configurations [action]",
       "Type faktur configurations for help."
+    )
+
+    register(
+      Faktur::Commands::Invoices,
+      "invoices",
+      "invoices [action]",
+      "Type faktur invoices for help."
     )
 
     # desc "new AMOUNT CURRENCY", "Create a new invoice"
