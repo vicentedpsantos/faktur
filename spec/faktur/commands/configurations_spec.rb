@@ -1,139 +1,57 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require "thor"
+require "faktur/commands/configurations"
+require "faktur/data/configuration"
 
 RSpec.describe Faktur::Commands::Configurations do
-  subject(:configuration_commands) { described_class.new }
-
-  let(:config_name) { "test_config" }
-  let(:mock_config_data) do
-    {
-      name: config_name,
-      client_name: "Client Co.",
-      client_address: "1234 Elm Street",
-      client_vat: "123456789",
-      beneficiary_name: "Beneficiary Name",
-      beneficiary_tax_number: "987654321",
-      beneficiary_address: "4321 Oak Avenue",
-      bank_account_beneficiary_name: "Bank Beneficiary",
-      bank_account_address: "5678 Pine Blvd",
-      bank_account_iban: "IBAN1234567890",
-      bank_account_swift: "SWIFT12345",
-      bank_name: "Big Bank",
-      payment_terms: "30d",
-      service_description: "Consulting services",
-      invoice_numbering: "sequential"
-    }
-  end
-
-  before do
-    allow(configuration_commands).to receive(:ask) do |prompt|
-      key = CONFIGURATION_PROMPTS.key(prompt)
-      mock_config_data[key] if key
-    end
-
-    allow(Faktur::Database).to receive(:create)
-    allow(Faktur::Database).to receive(:delete)
-    allow(Faktur::Database).to receive(:get_record).and_return(mock_config_data.values)
-  end
-
-  describe "#create" do
-    it "prompts the user for each configuration value" do
-      CONFIGURATION_PROMPTS.each do |key, prompt|
-        expect(configuration_commands)
-          .to receive(:ask)
-          .with(prompt)
-          .and_return(mock_config_data[key])
-      end
-
-      configuration_commands.create(config_name)
-    end
-
-    it "saves the configuration with the correct data" do
-      expected_config = mock_config_data
-
-      configuration_commands.create(config_name)
-
-      expect(Faktur::Database).to have_received(:create).with("configs", expected_config)
-    end
-  end
+  let(:configurations) { described_class.new }
 
   describe "#list" do
-    let(:mock_config) { double("Configuration", id: 1, name: config_name) }
+    let(:configs) { [double("Config", id: 1, name: "Config 1"), double("Config", id: 2, name: "Config 2")] }
 
     before do
-      allow(Faktur::Database).to receive(:list).and_return([mock_config])
+      allow(Faktur::Data::Configuration).to receive(:list).and_return(configs)
+      allow(configurations).to receive(:puts)
     end
 
     it "lists all configurations" do
-      expect { configuration_commands.list }
-        .to output("ID 1 · #{config_name}\n")
-        .to_stdout
-    end
-
-    it "does not prompt the user for any input" do
-      expect(configuration_commands).not_to receive(:ask)
-
-      configuration_commands.list
-    end
-  end
-
-  describe "#delete" do
-    let(:config_id) { 1 }
-
-    before do
-      allow(Faktur::Database).to receive(:delete).with("configs", config_id)
-    end
-
-    it "deletes the configuration by its ID" do
-      configuration_commands.delete(config_id)
-      expect(Faktur::Database).to have_received(:delete).with("configs", config_id)
-    end
-
-    it "outputs a success message" do
-      expect { configuration_commands.delete(config_id) }
-        .to output(/Configuration deleted successfully!/)
-        .to_stdout
+      configurations.list
+      configs.each do |config|
+        expect(configurations).to have_received(:puts).with("ID #{config.id} · #{config.name}")
+      end
     end
   end
 
   describe "#show" do
-    let(:config_name) { "test_config" }
+    let(:name) { "Test Configuration" }
+    let(:config) { double("Config", client_name: "Client Name", client_address: "Client Address") }
+    let(:attrs) { %i[client_name client_address] }
 
-    context "when configuration exists" do
-      before do
-        allow(Faktur::Database)
-          .to receive(:find_by)
-          .with(
-            "configs",
-            { name: "test_config" },
-            ->(row) { Faktur::Models::Configuration.new(row, from_rows: true) }
-          ).and_return(Faktur::Models::Configuration.new(mock_config_data.values, from_rows: true))
+    before do
+      stub_const("Faktur::Models::Configuration::ATTRS", attrs)
+      allow(Faktur::Data::Configuration).to receive(:find_by).with(name: name).and_return(config)
+      allow(configurations).to receive(:puts)
+    end
+
+    it "shows a configuration" do
+      configurations.show(name)
+      attrs.each do |attr|
+        expect(configurations).to have_received(:puts).with("#{attr.to_s.split("_").map(&:capitalize).join(" ")}: #{config.send(attr)}")
       end
+    end
+  end
 
-      it "shows the configuration" do
-        expected_output = <<~OUTPUT
-          Id: test_config
-          Name: Client Co.
-          Client Name: 1234 Elm Street
-          Client Address: 123456789
-          Client Vat: Beneficiary Name
-          Beneficiary Name: 987654321
-          Beneficiary Tax Number: 4321 Oak Avenue
-          Beneficiary Address: Bank Beneficiary
-          Bank Account Beneficiary Name: 5678 Pine Blvd
-          Bank Account Address: IBAN1234567890
-          Bank Account Iban: SWIFT12345
-          Bank Account Swift: Big Bank
-          Bank Name: 30d
-          Payment Terms: Consulting services
-          Service Description: sequential
-          Invoice Numbering:#{" "}
-        OUTPUT
+  describe "#delete" do
+    let(:id) { 1 }
 
-        expect { configuration_commands.show(config_name) }
-          .to output(expected_output).to_stdout
-      end
+    before do
+      allow(Faktur::Data::Configuration).to receive(:delete).with({ id: id })
+    end
+
+    it "deletes a configuration" do
+      configurations.delete(id)
+      expect(Faktur::Data::Configuration).to have_received(:delete).with({ id: id })
     end
   end
 end

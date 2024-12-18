@@ -31,6 +31,11 @@ module Faktur
       def list
         invoices = Faktur::Data::Invoice.list
 
+        if invoices.empty?
+          puts "No invoices found"
+          return
+        end
+
         invoices.each do |invoice|
           puts <<-TEXT
             ID #{invoice.id} · \

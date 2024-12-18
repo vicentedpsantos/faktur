@@ -8,12 +8,14 @@ module Faktur
   # Database class
   class Database
     DB_DIR = File.expand_path("~/.config/faktur")
-    DB_PATH = "#{DB_DIR}/faktur.db".freeze
+    DB_NAME = "faktur.db"
 
-    def self.setup
-      db = SQLite3::Database.new(DB_PATH)
-      create_tables(db)
-      db.close
+    def self.setup(db_dir = DB_DIR, setup_queries = SQLQueries::CREATE_TABLE_QUERIES)
+      FileUtils.mkdir_p(db_dir)
+      db = SQLite3::Database.new("#{db_dir}/#{DB_NAME}")
+      create_tables(db, setup_queries)
+
+      yield db if block_given?
     end
 
     def self.create(table_name, data)
@@ -64,10 +66,7 @@ module Faktur
     end
 
     def self.process
-      setup
-      db = SQLite3::Database.new(DB_PATH)
-
-      begin
+      setup do |db|
         yield db
       rescue SQLite3::SQLException => e
         puts "Error: #{e.message}"
@@ -76,8 +75,10 @@ module Faktur
       end
     end
 
-    def self.create_tables(db)
-      db.execute(SQLQueries::CREATE_TABLES)
+    def self.create_tables(db, setup_queries)
+      setup_queries.each do |query|
+        db.execute(query)
+      end
     end
 
     def self.insert_data(db, table_name, data)

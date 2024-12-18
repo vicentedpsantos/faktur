@@ -25,8 +25,8 @@ module Faktur
             pdf.text "Client Information", size: 20, style: :bold
             pdf.stroke_horizontal_rule
             pdf.move_down 10
-            pdf.text "#{@client_config.client_name}", size: 12
-            pdf.text "#{@client_config.client_address}", size: 12
+            pdf.text @client_config.client_name.to_s, size: 12
+            pdf.text @client_config.client_address.to_s, size: 12
             pdf.text "VAT: #{@client_config.client_vat}", size: 12
 
             pdf.move_down 20
@@ -50,7 +50,6 @@ module Faktur
             pdf.text "SWIFT Code: #{@client_config.bank_account_swift}", size: 12
             pdf.text "Bank Name: #{@client_config.bank_name}", size: 12
             pdf.text "Address: #{@client_config.bank_account_address}", size: 12
-
 
             pdf.move_down 20
 
