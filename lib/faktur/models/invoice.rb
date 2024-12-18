@@ -46,8 +46,6 @@ module Faktur
         @client_config = client_config
       end
 
-      private
-
       def override_number(attributes)
         @options[:number] || attributes[7]
       end

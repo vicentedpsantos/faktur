@@ -41,16 +41,15 @@ module Faktur
       end
 
       desc "print", "Print an invoice"
+      option :format, type: :string, required: false, desc: "Output format (html, pdf)"
       def print(id)
         invoice = Faktur::Data::Invoice.find_by({ id: id })
         client_config = Faktur::Data::Configuration.find_by({ id: invoice.client_id })
+        Faktur::Views::Invoice.render(invoice, client_config, options)
 
-        pdf = Faktur::Views::Invoices::PDF.new(invoice, client_config)
-        pdf_file = pdf.render
+        result = Faktur::Views::Invoices::PDF.new(invoice, client_config)
 
-        File.open("invoice.pdf", "wb") do |file|
-          file.write(pdf_file)
-        end
+        puts "Invoice saved to #{result.path} as #{result.filename}"
       end
 
       desc "delete", "Delete an invoice"
