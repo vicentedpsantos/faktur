@@ -6,6 +6,7 @@ source "https://rubygems.org"
 gemspec
 
 gem "prawn", "~> 2.1"
+gem "prawn-table", "~> 0.2.2"
 gem "rake", "~> 13.0"
 gem "rspec", "~> 3.0"
 gem "rubocop", "~> 1.21"

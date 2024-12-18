@@ -48,7 +48,7 @@ module Faktur
 
       def fetch_last_invoice_number_for_client(client_id)
         Faktur::Data::Invoice.list({ client_id: client_id }).last.number
-      rescue
+      rescue StandardError
         "0"
       end
 
