@@ -1,10 +1,13 @@
+require_relative "./invoices/html"
+require_relative "./invoices/pdf"
+
 module Faktur
   module Views
     class Invoice
       Result = Struct.new(:path, :filename)
 
       def initialize(invoice, client_config, options)
-        @format = options[:format]
+        @format = options[:format] || "pdf"
         @invoice = invoice
         @client_config = client_config
       end

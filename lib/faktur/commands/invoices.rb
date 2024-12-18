@@ -4,6 +4,7 @@ require "thor"
 require_relative "../database"
 require_relative "../models/invoice"
 require_relative "../models/configuration"
+require_relative "../views/invoice"
 
 INVOICE_PROMPTS = {
   client_name: "Enter the client name: ",
@@ -45,9 +46,7 @@ module Faktur
       def print(id)
         invoice = Faktur::Data::Invoice.find_by({ id: id })
         client_config = Faktur::Data::Configuration.find_by({ id: invoice.client_id })
-        Faktur::Views::Invoice.render(invoice, client_config, options)
-
-        result = Faktur::Views::Invoices::PDF.new(invoice, client_config)
+        result = Faktur::Views::Invoice.new(invoice, client_config, options).process
 
         puts "Invoice saved to #{result.path} as #{result.filename}"
       end
