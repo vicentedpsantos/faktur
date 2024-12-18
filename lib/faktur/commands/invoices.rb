@@ -15,16 +15,15 @@ module Faktur
   module Commands
     # Invoices commands class
     class Invoices < Thor
-      TABLE_NAME = "invoices"
-
       desc "create", "Create a new invoice"
+      option :number, type: :numeric, required: false, desc: "Invoice number"
       def create
         input = {}
         INVOICE_PROMPTS.each { |key, prompt| input[key] = ask(prompt) }
         client_config = Faktur::Data::Configuration.find_by({ name: input[:client_name] })
-        invoice = Faktur::Models::Invoice.new(input, client_config: client_config)
+        invoice = Faktur::Models::Invoice.new(input, client_config: client_config, options: options)
 
-        Faktur::Data::Invoice.create(TABLE_NAME, invoice.to_h)
+        Faktur::Data::Invoice.create(invoice.to_h)
       end
 
       desc "list", "List all invoices"
@@ -37,12 +36,7 @@ module Faktur
         end
 
         invoices.each do |invoice|
-          puts <<-TEXT
-            ID #{invoice.id} · \
-            #{invoice.client_name} · \
-            #{invoice.amount} · #{invoice.currency} · \
-            #{invoice.created_at}"
-          TEXT
+          puts "ID #{invoice.id} · ##{invoice.number} · #{invoice.client_name} · #{invoice.amount} #{invoice.currency} · #{invoice.created_at}"
         end
       end
 
@@ -57,6 +51,11 @@ module Faktur
         File.open("invoice.pdf", "wb") do |file|
           file.write(pdf_file)
         end
+      end
+
+      desc "delete", "Delete an invoice"
+      def delete(id)
+        Faktur::Data::Invoice.delete({ id: id })
       end
     end
   end

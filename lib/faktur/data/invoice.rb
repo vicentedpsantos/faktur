@@ -25,6 +25,10 @@ module Faktur
       def self.find_by(where)
         list(where).first
       end
+
+      def self.delete(where = {})
+        Faktur::Database.delete(TABLE_NAME, where)
+      end
     end
   end
 end

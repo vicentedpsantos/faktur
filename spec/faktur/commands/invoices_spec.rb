@@ -19,24 +19,46 @@ RSpec.describe Faktur::Commands::Invoices do
       }
     end
     let(:client_config) { double("ClientConfig") }
-    let(:invoice) { double("Invoice", to_h: { client_name: "Client Name", amount: "1000", currency: "USD" }) }
+    let(:invoice) do
+      double("Invoice",
+             to_h: { client_name: "Client Name",
+                     amount: "1000",
+                     currency: "USD",
+                     number: "27" })
+    end
 
     before do
       allow(invoices).to receive(:ask).and_return(*input.values)
-      allow(Faktur::Data::Configuration).to receive(:find_by).with( { name: input[:client_name] }).and_return(client_config)
-      allow(Faktur::Models::Invoice).to receive(:new).with(input, client_config: client_config).and_return(invoice)
-      allow(Faktur::Data::Invoice).to receive(:create).with("invoices", invoice.to_h)
+      allow(Faktur::Data::Configuration)
+        .to receive(:find_by)
+        .with({ name: input[:client_name] })
+        .and_return(client_config)
+
+      allow(Faktur::Models::Invoice)
+        .to receive(:new)
+        .with(input, client_config: client_config, options: {})
+        .and_return(invoice)
+
+      allow(Faktur::Data::Invoice)
+        .to receive(:create)
+        .with(invoice.to_h)
     end
 
     it "creates a new invoice" do
       invoices.create
-      expect(Faktur::Data::Invoice).to have_received(:create).with("invoices", invoice.to_h)
+      expect(Faktur::Data::Invoice).to have_received(:create).with(invoice.to_h)
     end
   end
 
   describe "#list" do
     let(:invoice_list) do
-      [double("Invoice", id: 1, client_name: "Client 1", amount: "1000", currency: "USD", created_at: "2023-01-01")]
+      [double("Invoice",
+              id: 1,
+              client_name: "Client 1",
+              amount: "1000",
+              currency: "USD",
+              created_at: "2023-01-01",
+              number: "27")]
     end
 
     before do
@@ -46,7 +68,7 @@ RSpec.describe Faktur::Commands::Invoices do
 
     it "lists all invoices" do
       invoices.list
-      invoice_list.each do |invoice|
+      invoice_list.each do |_invoice|
         expect(invoices).to have_received(:puts).with(/ID/)
       end
     end
@@ -80,6 +102,19 @@ RSpec.describe Faktur::Commands::Invoices do
     it "prints an invoice" do
       invoices.print(id)
       expect(File).to have_received(:open).with("invoice.pdf", "wb")
+    end
+  end
+
+  describe "#delete" do
+    let(:id) { 1 }
+
+    before do
+      allow(Faktur::Data::Invoice).to receive(:delete).with({ id: id })
+    end
+
+    it "deletes an invoice" do
+      invoices.delete(id)
+      expect(Faktur::Data::Invoice).to have_received(:delete).with({ id: id })
     end
   end
 end

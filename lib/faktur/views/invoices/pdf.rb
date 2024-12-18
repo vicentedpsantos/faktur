@@ -2,12 +2,15 @@
 
 require "prawn"
 require "prawn/table"
+require "action_view"
 
 module Faktur
   module Views
     module Invoices
       # PDF class
       class PDF
+        include ActionView::Helpers
+
         def initialize(invoice, client_config)
           @invoice = invoice
           @client_config = client_config
@@ -66,7 +69,7 @@ module Faktur
             pdf.stroke_horizontal_rule
             pdf.move_down 10
             data = [["Service Description", "Amount"]] +
-                   [[@client_config.service_description, "#{@invoice.currency} #{@invoice.amount}"]]
+                   [[@client_config.service_description, "#{@invoice.currency} #{formatted_amount}"]]
             pdf.table(data, header: true, row_colors: %w[F0F0F0 FFFFFF], width: pdf.bounds.width) do
               row(0).font_style = :bold
               columns(1).align = :right
@@ -79,9 +82,13 @@ module Faktur
             pdf.stroke_horizontal_rule
             pdf.move_down 10
             pdf.text "Issued at: #{@invoice.created_at}", size: 12
-            pdf.text "Total: #{@invoice.currency} #{@invoice.amount}", size: 12
+            pdf.text "Total: #{@invoice.currency} #{formatted_amount}", size: 12
             pdf.move_down 20
           end.render
+        end
+
+        def formatted_amount
+          number_to_currency(@invoice.amount)
         end
       end
     end
