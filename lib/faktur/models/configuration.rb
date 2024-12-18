@@ -21,7 +21,7 @@ module Faktur
       end
 
       def due_date
-        (Time.now + 16 * 24 * 60 * 60).strftime("%d %b, %Y")
+        (Time.now + payment_term_days * 24 * 60 * 60).strftime("%d %b, %Y")
       end
 
       def next_invoice_number

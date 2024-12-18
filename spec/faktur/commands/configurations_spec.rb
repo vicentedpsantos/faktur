@@ -23,6 +23,18 @@ RSpec.describe Faktur::Commands::Configurations do
     end
   end
 
+  describe "#list with no configurations" do
+    before do
+      allow(Faktur::Data::Configuration).to receive(:list).and_return([])
+      allow(configurations).to receive(:puts)
+    end
+
+    it "shows a message when there are no configurations" do
+      configurations.list
+      expect(configurations).to have_received(:puts).with("No configurations found")
+    end
+  end
+
   describe "#show" do
     let(:name) { "Test Configuration" }
     let(:config) { double("Config", client_name: "Client Name", client_address: "Client Address") }

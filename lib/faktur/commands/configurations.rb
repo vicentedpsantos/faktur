@@ -36,6 +36,12 @@ module Faktur
       desc "list", "List all configurations"
       def list
         configs = Faktur::Data::Configuration.list
+
+        if configs.empty?
+          puts "No configurations found"
+          return
+        end
+
         configs.each { |config| puts "ID #{config.id} · #{config.name}" }
       end
 
