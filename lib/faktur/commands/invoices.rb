@@ -43,6 +43,7 @@ module Faktur
 
       desc "print", "Print an invoice"
       option :format, type: :string, required: false, desc: "Output format (html, pdf)"
+      option :path, type: :string, required: false, desc: "Output path"
       def print(id)
         invoice = Faktur::Data::Invoice.find_by({ id: id })
         client_config = Faktur::Data::Configuration.find_by({ id: invoice.client_id })

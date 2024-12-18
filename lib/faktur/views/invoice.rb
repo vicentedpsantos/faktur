@@ -7,6 +7,7 @@ module Faktur
       Result = Struct.new(:path, :filename)
 
       def initialize(invoice, client_config, options)
+        @path = options[:path] || Dir.pwd
         @format = options[:format] || "pdf"
         @invoice = invoice
         @client_config = client_config
@@ -29,7 +30,7 @@ module Faktur
       private
 
       def write_file(rendered)
-        File.open(filename, "wb") do |file|
+        File.open("#{@path}/#{filename}", "wb") do |file|
           file.write(rendered)
         end
 
@@ -37,7 +38,7 @@ module Faktur
       end
 
       def build_result
-        Result.new(Dir.pwd, filename)
+        Result.new(@path, filename)
       end
 
       def filename
