@@ -5,7 +5,6 @@ require "faktur/commands/invoices"
 require "faktur/data/invoice"
 require "faktur/data/configuration"
 require "faktur/models/invoice"
-require "faktur/database"
 require "faktur/views/invoices/pdf"
 
 RSpec.describe Faktur::Commands::Invoices do
@@ -26,12 +25,12 @@ RSpec.describe Faktur::Commands::Invoices do
       allow(invoices).to receive(:ask).and_return(*input.values)
       allow(Faktur::Data::Configuration).to receive(:find_by).with( { name: input[:client_name] }).and_return(client_config)
       allow(Faktur::Models::Invoice).to receive(:new).with(input, client_config: client_config).and_return(invoice)
-      allow(Faktur::Database).to receive(:create).with("invoices", invoice.to_h)
+      allow(Faktur::Data::Invoice).to receive(:create).with("invoices", invoice.to_h)
     end
 
     it "creates a new invoice" do
       invoices.create
-      expect(Faktur::Database).to have_received(:create).with("invoices", invoice.to_h)
+      expect(Faktur::Data::Invoice).to have_received(:create).with("invoices", invoice.to_h)
     end
   end
 

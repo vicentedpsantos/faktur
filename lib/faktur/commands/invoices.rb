@@ -24,7 +24,7 @@ module Faktur
         client_config = Faktur::Data::Configuration.find_by({ name: input[:client_name] })
         invoice = Faktur::Models::Invoice.new(input, client_config: client_config)
 
-        Faktur::Database.create(TABLE_NAME, invoice.to_h)
+        Faktur::Data::Invoice.create(TABLE_NAME, invoice.to_h)
       end
 
       desc "list", "List all invoices"
