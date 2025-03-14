@@ -88,7 +88,7 @@ module Faktur
         end
 
         def formatted_amount
-          number_with_delimiter(@invoice.amount)
+          format("%.2f", @invoice.amount)
         end
       end
     end
